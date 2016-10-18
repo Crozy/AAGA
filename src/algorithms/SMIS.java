@@ -3,6 +3,7 @@ package algorithms;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 import algorithms.PointMIS.Couleur;
@@ -60,9 +61,64 @@ public class SMIS {
 				}
 			}
 		}
-
+		
+		i = 1;
+		for (PointMIS pm : dominators)
+			pm.setIdComposant(i++);
+		
+		ArrayList<PointMIS> blue = CDS(pointsMIS,dominators);
+		dominators.addAll(blue);
+		System.out.println("Les bleus: " + blue.size());
+		
 		return dominators;
 	}
+	private static ArrayList<PointMIS> CDS(ArrayList<PointMIS> points, ArrayList<PointMIS> dominator) {
+		ArrayList<PointMIS> blueNodes = new ArrayList<PointMIS>();
+		for(int i=5;i>1;i--) {
+			System.out.println("i: " + i);
+			for(PointMIS p : greyNodesWithIBlackNeighbours(dominator, points, i)){
+				p.setCouleur(Couleur.BLEU);
+				blueNodes.add(p);
+				int minVal = getMinIDComponent(p);
+				p.setIdComposant(minVal);
+				for(PointMIS neighbour : voisins.get(p)){
+					neighbour.setIdComposant(minVal);
+				}
+			}
+		}
+		System.out.println("cds: " + blueNodes.size());
+		return blueNodes;
+	}
+	public static int getMinIDComponent(PointMIS p){
+		int minVal = Integer.MAX_VALUE;
+		for(PointMIS p2 : voisins.get(p)){
+			if(p2.getIdComposant() < minVal)
+				minVal = p2.getIdComposant();
+		}
+		return minVal;
+		
+	}
+	public static ArrayList<PointMIS> greyNodesWithIBlackNeighbours(ArrayList<PointMIS> black, ArrayList<PointMIS> list, int i){
+		ArrayList<PointMIS> result = new ArrayList<PointMIS>();
+		for(PointMIS p : list){
+			if(p.getCouleur() != Couleur.GRIS)
+				continue;
+			//Calculates number of adjacent black neighbours from differents
+			HashSet<Integer> idComponentSet = new HashSet<Integer>();
+			
+			for( PointMIS p2 : voisins.get(p)){
+				if(p2.getCouleur() == Couleur.NOIR)
+					idComponentSet.add(p2.getIdComposant());
+			}
+
+			//Look if the node satisfies i neighbours
+			if(idComponentSet.size() == i)
+				result.add(p);
+			
+		}
+		return result;
+	}
+	
 	public static ArrayList<Point> pointsFromPointsMIS(ArrayList<PointMIS> list){
 		ArrayList<Point> list2 = new ArrayList<>();
 		for(PointMIS p : list){
@@ -70,6 +126,7 @@ public class SMIS {
 		}
 			return list2;
 	}
+	
 	public static PointMIS bestNoeudBlancActif(ArrayList<PointMIS> list) {
 		PointMIS resMax = null;
 		int nbMax = Integer.MIN_VALUE;
