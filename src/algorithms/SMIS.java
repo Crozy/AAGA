@@ -17,7 +17,63 @@ public class SMIS {
 			voisins.put(p, neighbor(p, list, edge));
 		}
 	}
+	public static ArrayList<PointMIS> algoGlouton(ArrayList<Point> points, int edge,int yu){
+		ArrayList<PointMIS> pointsMIS = new ArrayList<PointMIS>();
+		ArrayList<PointMIS> dominators = new ArrayList<PointMIS>();
+		Random r = new Random();
+		PointMIS mis;
+		int i = -1;
 
+		for (Point pm : points) {
+			PointMIS p1 = new PointMIS(pm, i, false, Couleur.BLANC);
+			pointsMIS.add(p1);
+		}
+		init(pointsMIS, edge);
+		mis = pointsMIS.get(yu);
+		mis.setCouleur(Couleur.NOIR);
+		dominators.add(mis);
+		for (PointMIS point1 : voisins.get(mis)) {
+			point1.setCouleur(Couleur.GRIS);
+			point1.setActif(true);
+		}
+		while (containsWhite(pointsMIS)) {
+			PointMIS bestActif = bestNoeudGrisActif(pointsMIS); // On prend le meilleur candidat 
+			if(bestActif == null){
+				System.out.println("Toz");
+				break;
+			}
+			bestActif.setCouleur(Couleur.NOIR);
+			dominators.add(bestActif); 	// On l'ajoute dans la liste des dominants 
+			for (PointMIS point1 : voisins.get(bestActif)) { // Pour chaque voisins du candidat on les met en gris
+				if(point1.getCouleur() == Couleur.BLANC){
+					point1.setCouleur(Couleur.GRIS);
+					point1.setActif(true);
+				}
+			}
+		}
+		return dominators;
+	}
+	private static PointMIS bestNoeudGrisActif(ArrayList<PointMIS> noeudsBlanc) {
+		PointMIS resMax = null;
+		int nbMax = Integer.MIN_VALUE;
+		for (PointMIS p1 : noeudsBlanc) {
+			if (p1.isActif() && p1.getCouleur() == Couleur.GRIS) {
+				int nbVoisinsBlanc = nbVoisinsBlanc(p1);
+				if (nbVoisinsBlanc > nbMax) {
+					nbMax = nbVoisinsBlanc;
+					resMax = p1;
+				}
+			}
+		}
+		return resMax;
+	}
+	public static boolean containsWhite(ArrayList<PointMIS> points){
+		for (PointMIS p : points){
+			if(p.getCouleur() == Couleur.BLANC)
+				return true;
+		}
+		return false;
+	}
 	public static ArrayList<PointMIS> mis(ArrayList<Point> points, int edge) {
 
 		ArrayList<PointMIS> pointsMIS = new ArrayList<PointMIS>();
@@ -25,13 +81,12 @@ public class SMIS {
 		ArrayList<PointMIS> dominators = new ArrayList<PointMIS>();
 		Random r = new Random();
 		PointMIS mis;
-		int i = 1;
+		int i = -1;
 
 		for (Point pm : points) {
 			PointMIS p1 = new PointMIS(pm, i, false, Couleur.BLANC);
 			pointsMIS.add(p1);
 			noeudsBlanc.add(p1);
-			i++;
 		}
 		init(pointsMIS, edge);
 
@@ -44,7 +99,8 @@ public class SMIS {
 			point1.setCouleur(Couleur.GRIS);
 			noeudsBlanc.remove(point1);
 			for (PointMIS point2 : voisins.get(point1)) {
-				point2.setActif(true);
+				if(point2.getCouleur() == Couleur.BLANC)
+					point2.setActif(true);
 			}
 		}
 
@@ -54,10 +110,13 @@ public class SMIS {
 			dominators.add(bestActif); 	// On l'ajoute dans la liste des dominants 
 			noeudsBlanc.remove(bestActif);
 			for (PointMIS point1 : voisins.get(bestActif)) { // Pour chaque voisins du candidat on les met en gris
-				point1.setCouleur(Couleur.GRIS);
-				noeudsBlanc.remove(point1);
-				for (PointMIS point2 : voisins.get(point1)) {
-					point2.setActif(true);
+				if(point1.getCouleur() == Couleur.BLANC){
+					point1.setCouleur(Couleur.GRIS);
+					noeudsBlanc.remove(point1);
+					for (PointMIS point2 : voisins.get(point1)) {
+						if(point2.getCouleur() == Couleur.BLANC)
+							point2.setActif(true);
+					}
 				}
 			}
 		}
@@ -68,38 +127,48 @@ public class SMIS {
 		
 		ArrayList<PointMIS> blue = CDS(pointsMIS,dominators);
 		dominators.addAll(blue);
-		System.out.println("Les bleus: " + blue.size());
 		
 		return dominators;
 	}
 	private static ArrayList<PointMIS> CDS(ArrayList<PointMIS> points, ArrayList<PointMIS> dominator) {
 		ArrayList<PointMIS> blueNodes = new ArrayList<PointMIS>();
 		for(int i=5;i>1;i--) {
-			System.out.println("i: " + i);
-			for(PointMIS p : greyNodesWithIBlackNeighbours(dominator, points, i)){
-				p.setCouleur(Couleur.BLEU);
-				blueNodes.add(p);
-				int minVal = getMinIDComponent(p);
-				p.setIdComposant(minVal);
-				for(PointMIS neighbour : voisins.get(p)){
-					neighbour.setIdComposant(minVal);
+			PointMIS greyPoint = null;
+			while( (greyPoint=greyNodesWithIBlackNeighbours(dominator, points, i)) != null){
+				
+				greyPoint.setCouleur(Couleur.BLEU);
+				blueNodes.add(greyPoint);
+				
+				//Look for the minimum ID Component from surrounding black-blue components
+				int minVal = getMinIDComponent(greyPoint);
+				greyPoint.setIdComposant(minVal);
+				//Change value of every 
+				for(PointMIS neighbour : voisins.get(greyPoint)){
+					if(neighbour.getCouleur() == Couleur.NOIR)
+						changeIDOfComponent(dominator, neighbour, minVal);
 				}
 			}
 		}
-		System.out.println("cds: " + blueNodes.size());
 		return blueNodes;
+	}
+	public static void changeIDOfComponent(ArrayList<PointMIS> blackNode,PointMIS neighbour, int minID){
+		int idOfNeighbour = neighbour.getIdComposant();
+		for(PointMIS node : blackNode){
+			if(node.getCouleur() == Couleur.NOIR && node.getIdComposant() == idOfNeighbour)
+				node.setIdComposant(minID);
+		}
+		neighbour.setIdComposant(minID);
 	}
 	public static int getMinIDComponent(PointMIS p){
 		int minVal = Integer.MAX_VALUE;
 		for(PointMIS p2 : voisins.get(p)){
-			if(p2.getIdComposant() < minVal)
+			if(p2.getIdComposant() < minVal && p2.getCouleur()==Couleur.NOIR)
 				minVal = p2.getIdComposant();
 		}
 		return minVal;
 		
 	}
-	public static ArrayList<PointMIS> greyNodesWithIBlackNeighbours(ArrayList<PointMIS> black, ArrayList<PointMIS> list, int i){
-		ArrayList<PointMIS> result = new ArrayList<PointMIS>();
+	public static PointMIS greyNodesWithIBlackNeighbours(ArrayList<PointMIS> black, ArrayList<PointMIS> list, int i){
 		for(PointMIS p : list){
 			if(p.getCouleur() != Couleur.GRIS)
 				continue;
@@ -113,10 +182,10 @@ public class SMIS {
 
 			//Look if the node satisfies i neighbours
 			if(idComponentSet.size() == i)
-				result.add(p);
-			
+				return p;
+				
 		}
-		return result;
+		return null;
 	}
 	
 	public static ArrayList<Point> pointsFromPointsMIS(ArrayList<PointMIS> list){

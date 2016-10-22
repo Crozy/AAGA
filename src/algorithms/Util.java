@@ -71,8 +71,6 @@ public class Util {
 		
 		for(Entry<Point,Boolean> p : colored.entrySet()){
 			if(!p.getValue()) {
-				System.out.println("Pas connexe!");
-				
 				return false;
 			}
 		}

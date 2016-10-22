@@ -40,7 +40,7 @@ public class DefaultTeamTME2 {
 			}
 			System.out.println(resmin.size());
 			Collections.shuffle(res);
-		} while (resmin.size() > 77);
+		} while (resmin.size() > 91);
 
 
 		System.out.println("fin");
@@ -103,7 +103,6 @@ public class DefaultTeamTME2 {
 			hs.addAll(res);
 			res.clear();
 			res.addAll(hs);
-			System.out.println(copyPoint.size());
 			copyPoint.removeAll(snd);
 			// k++;
 		}
