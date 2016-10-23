@@ -57,27 +57,39 @@ public class DefaultTeam {
 //		}
 		
 		try {
-			File f = new File("input/resultGLOUTON.points");
+			File f = new File("output/resultSTEINER.points");
 			PrintStream fr = new PrintStream(new FileOutputStream(f));
 			ArrayList<Point> res;
-			ArrayList<PointMIS> resMIS;
-			
-			for (int j = 0; j < 50; j++) {
-				res = Util.getPointsFromFile("input/input.points" + j);
+//			ArrayList<PointMIS> resMIS;
+			int[] nb = {500,1000,2000,5000,10000,50000};
+			for(int i : nb){
+				res = Util.getPointsFromFile("output/input"+i+".points");
+				ArrayList<Point> copypoints = pointsWithoutDoublon(res);
 				long start = System.nanoTime();
-				// resMIS = SMIS.mis(res, edgeThreshold);
-				resMIS = SMIS.algoGlouton(res, edgeThreshold, i);
+				list = DefaultTeamTME2.calculDominatingSet(copypoints, edgeThreshold);
+				list = (new DefaultTeamSteiner()).calculSteinerPoints(copypoints, edgeThreshold, list);
+//				 resMIS = SMIS.mis(res, edgeThreshold);
+//				resMIS = SMIS.algoGlouton(res, edgeThreshold, 0);
 				long end = (System.nanoTime() - start) / 1000000;
-				res = SMIS.pointsFromPointsMIS(resMIS);
-				fr.append(j + " " + res.size() + " " + end +  "\n");
+//				res = SMIS.pointsFromPointsMIS(resMIS);
+				System.out.println("Did "+i);
+				fr.append(i + " " + res.size() + " " + end +  "\n");
 			}
-			
 			fr.close();
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
+//		do{
+//		
+//			int i = 10000;
+//			RandomPointsGenerator.generate(i);
+//			list = Util.getPointsFromFile("output/input"+i+".points");
+//			initVoisins(list, edgeThreshold);
+//			System.out.println("Yo");
+//		}while(!Util.isConnexe(voisins, list));
+//		
 		result = SMIS.mis(points, edgeThreshold);
 		list = SMIS.pointsFromPointsMIS(result);
 		System.out.println("Size:" + list.size());

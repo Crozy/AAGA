@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class RandomPointsGenerator {
-	private static String filename = "input1.points";
+	private static String filename = "output/input10000.points";
 	private static int numberOfPoints = 1000;
 	private static int maxWidth = 1400;
 	private static int maxHeight = 900;
@@ -28,7 +28,7 @@ public class RandomPointsGenerator {
 	public static void main(String[] args) {
 		try {
 			for (int index = 0; index < 100; ++index) {
-				PrintStream output = new PrintStream(new FileOutputStream("input" + index + ".points"));
+				PrintStream output = new PrintStream(new FileOutputStream("output/input" + index + ".points"));
 				Random generator = new Random();
 				generator.setSeed(111993);
 				ArrayList<Point> points = new ArrayList<Point>();

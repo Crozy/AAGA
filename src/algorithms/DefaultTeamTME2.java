@@ -32,7 +32,6 @@ public class DefaultTeamTME2 {
 		ArrayList<Point>resg= res; //= localOpt2(copypoints, res, edgeThreshold);
 		resmin = resg;
 		// int i = 0;
-		do {
 			resg = DefaultTeamTME2.optiWhile(points, res, edgeThreshold);
 			// i++;
 			if (resmin.size() > resg.size()) {
@@ -40,7 +39,6 @@ public class DefaultTeamTME2 {
 			}
 			System.out.println(resmin.size());
 			Collections.shuffle(res);
-		} while (resmin.size() > 91);
 
 
 		System.out.println("fin");

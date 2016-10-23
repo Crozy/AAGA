@@ -71,7 +71,7 @@ public class Util {
 		for (Point point : dominatingSet)
 			colored.put(point, new Boolean(false));
 		
-		isConnexe(dominatingSet.get(0), steinerNeighbours, colored);
+//		isConnexe(dominatingSet.get(0), steinerNeighbours, colored);
 		
 		for(Entry<Point,Boolean> p : colored.entrySet()){
 			if(!p.getValue()) {
@@ -82,16 +82,23 @@ public class Util {
 		return res;
 	}
 	
-	public static void isConnexe(Point p , HashMap<Point,ArrayList<Point>> voisins, HashMap<Point, Boolean> colored) {
-		colored.put(p, new Boolean(true));
+	public static boolean isConnexe(HashMap<Point,ArrayList<Point>> voisins, ArrayList<Point> list) {
+		HashMap<Point, Boolean> bool = new HashMap<>();
+		for(Point point: list) 
+			bool.put(point, false);
 		
-		
-		for(Point point: voisins.get(p)) {
-			if(!colored.get(point)) {
-				isConnexe(point, voisins, colored);
+		for(Point point: list) {
+			for(Point neighbours : voisins.get(point)){
+				if(!bool.get(neighbours))
+					bool.put(neighbours, true);
 			}
 		}
 		
+		for(Point point: list) {
+			if(!bool.get(point))
+				return false;
+		}
+		return true;
 	}
 	
 	public static boolean isValidOpti(HashMap<Point,ArrayList<Point>> voisins,
