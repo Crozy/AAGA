@@ -20,7 +20,7 @@ public class SMIS {
 	public static ArrayList<PointMIS> algoGlouton(ArrayList<Point> points, int edge,int yu){
 		ArrayList<PointMIS> pointsMIS = new ArrayList<PointMIS>();
 		ArrayList<PointMIS> dominators = new ArrayList<PointMIS>();
-		Random r = new Random();
+		// Random r = new Random();
 		PointMIS mis;
 		int i = -1;
 

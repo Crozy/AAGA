@@ -1,6 +1,10 @@
 package algorithms;
 
 import java.awt.Point;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,4 +106,24 @@ public class Util {
 		}
 		return set.size()==points.size();
 	}
+	
+	public static ArrayList<Point> getPointsFromFile(String filename) {
+		ArrayList<Point> points = new ArrayList<>();
+		
+		try {
+			File f = new File(filename);
+			BufferedReader fr = new BufferedReader(new FileReader(f));
+			String ligne = "";
+			while ((ligne = fr.readLine()) != null) {
+				String[] tmp = ligne.split(" ");
+				points.add(new Point(Integer.parseInt(tmp[0]), Integer.parseInt(tmp[1])));
+			}
+			fr.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return points;
+	}
+	
 }

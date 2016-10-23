@@ -1,13 +1,9 @@
 package algorithms;
 
 import java.awt.Point;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -21,14 +17,14 @@ import java.util.HashSet;
 
 public class DefaultTeam {
 	static HashMap<Point, ArrayList<Point>> voisins;
-	public static int i = 0;
+	public static int i = 53;
 
 	public ArrayList<Point> calculConnectedDominatingSet(
 			ArrayList<Point> points, int edgeThreshold)
 			throws FileNotFoundException {
 		
-		try {
-			File f = new File("input/input.points0");
+		/*try {
+			File f = new File("input/input.points" + (++i));
 			PrintStream fr = new PrintStream(new FileOutputStream(f));
 			File f2 = new File("input.points");
 			BufferedReader fr2 = new BufferedReader(new FileReader(f2));
@@ -41,16 +37,17 @@ public class DefaultTeam {
 
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 
 		initVoisins(points, edgeThreshold);
-		ArrayList<Point> list = new ArrayList<Point>();
-		ArrayList<Point> copypoints = pointsWithoutDoublon(points);
-		ArrayList<PointMIS> bestlist = new ArrayList<PointMIS>();
-		int bestsize = Integer.MAX_VALUE;
+		ArrayList<Point> list = new ArrayList<>();
+		ArrayList<PointMIS> result = new ArrayList<>();
+		// ArrayList<Point> copyPoints = pointsWithoutDoublon(points);
+		// ArrayList<PointMIS> bestList = new ArrayList<PointMIS>();
+		// int bestSize = Integer.MAX_VALUE;
 //
 //		for (int i = 0; i < copypoints.size(); i++) {
-//			ArrayList<PointMIS> listMIS = SMIS.algoGlouton(copypoints,
+//			ArrayList<PointMIS> listMIS = SMIS.algoGlouton(copyPoints,
 //					edgeThreshold, i);
 //
 //			if (bestsize > listMIS.size()) {
@@ -58,8 +55,32 @@ public class DefaultTeam {
 //				bestsize = listMIS.size();
 //			}
 //		}
+		
+		try {
+			File f = new File("input/resultGLOUTON.points");
+			PrintStream fr = new PrintStream(new FileOutputStream(f));
+			ArrayList<Point> res;
+			ArrayList<PointMIS> resMIS;
+			
+			for (int j = 0; j < 50; j++) {
+				res = Util.getPointsFromFile("input/input.points" + j);
+				long start = System.nanoTime();
+				// resMIS = SMIS.mis(res, edgeThreshold);
+				resMIS = SMIS.algoGlouton(res, edgeThreshold, i);
+				long end = (System.nanoTime() - start) / 1000000;
+				res = SMIS.pointsFromPointsMIS(resMIS);
+				fr.append(j + " " + res.size() + " " + end +  "\n");
+			}
+			
+			fr.close();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-		list = SMIS.pointsFromPointsMIS(bestlist);
+		result = SMIS.mis(points, edgeThreshold);
+		list = SMIS.pointsFromPointsMIS(result);
+		System.out.println("Size:" + list.size());
 		return list;
 	}
 
